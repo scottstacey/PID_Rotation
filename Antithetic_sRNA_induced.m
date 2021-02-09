@@ -1,0 +1,5 @@
+clear; clc; clf;
+%% Parameter Values
+tau_1   = ; % Leaky transcription rate of Z_1 
+k_1     = ; % Maximal transcription rate of Z_1
+theta   = ; % 
