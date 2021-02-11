@@ -21,28 +21,28 @@ global T_1
 global T_0 
 
 %% Parameter Values
-tau_1    = 0.09;        % Leaky transcription rate of Z_1 
-k_1      = 0.85;        % Maximal transcription rate of Z_1
-theta    = 0.05;        % Annihilation rate of Z_1 and Z_2 
+tau_1    = 0;           % Leaky transcription rate of Z_1 
+k_1      = 1670;        % Maximal transcription rate of Z_1
+theta    = 0.000000224; % Annihilation rate of Z_1 and Z_2 
 delta_s  = 0.0008;      % sRNA degradation/dilution rate
 k_2      = 0.000000224; % Z_1 sRNA and X mRNA binding rate 
 B        = 2600;        % A binding rate for U mediated induction of Z_1 
-U        = 2000;        % Concentration of the inducer for Z_1 transcription 
-tau_2    = 0.09;        % Leaky transcription of Z_2 
-k_3      = 0.85;        % Maximal transcription rate of Z_2
-K        = 600;         % Dissociation constant for X Protein (this is a pretty random number)
+U        = 1;           % Concentration of the inducer for Z_1 transcription 
+tau_2    = 0.0;         % Leaky transcription of Z_2 
+k_3      = 100;         % Maximal transcription rate of Z_2
+K        = 10;          % Dissociation constant for X Protein (this is a pretty random number)
 alpha    = 0.85;        % Transcription rate of X mRNA 
-delta_m  = 0.0041;      % degradation rate of X mRNA 
-delta_c  = 0.0041;      % degradation rate of sRNA-mRNA complex 
+delta_m  = 0.00;      % degradation rate of X mRNA 
+delta_c  = 0.00;      % degradation rate of sRNA-mRNA complex 
 delta_p  = 0.00039;     % degradation rate of the X protein
-T_1      = 0.00243;     % Translation rate of X from X mRNA 
+T_1      = 0.0243;      % Translation rate of X from X mRNA 
 T_0      = 0;           % Leaky translation rate of X from the sRNA-mRNA complex - currently assuming no leak
 
 %% State is [Z_1 Z_2 X_m X_P C]
 s0       = [0 0 0 0 0]; % Initial values of the states in the ODE model 
 
 %% Generate the simulation 
-Tend     = 10000;        % End time value -- This is currently random 
+Tend     = 25000;        % End time value -- This is currently random 
 ODEFUN   = @antitheticsrnaddt;
 [t, S] = ode45(ODEFUN, [0,Tend], s0);
 
@@ -50,8 +50,8 @@ ODEFUN   = @antitheticsrnaddt;
 figure(1);
 set(gca, 'fontsize', 14);
 plot(t, S(:,4), 'k', t, S(:,1), 'r', t, S(:,2), 'g', t, S(:,3), 'b', t, S(:,5), 'y', 'LineWidth', 3);
-legend('X Protein', 'Z1', 'Z2', 'X mRNA', 'X-mRNA-Z1 Complex', 'Location' 'nothwest');
-xlabel('Time (minutes)');
+legend('X Protein', 'Z1', 'Z2', 'X mRNA', 'X-mRNA-Z1 Complex', 'Location', 'northwest');
+xlabel('Time (seconds)');
 
 end
 

@@ -1,0 +1,94 @@
+function Antitheticprotein
+clear; clc; clf;
+% This is a model of the antithetic controller under transcriptional control
+% via protein.
+%% Initialising Global Parameters 
+global tau_1   % leaky transcription of Z1 mRNA 
+global tau_2   % leaky transcription of Z2 mRNA
+global tau_3   % leaky transcription of X mRNA 
+global k_1     % Maximal transcription of Z1 mRNA 
+global k_2     % Maximal transcription of X mRNA
+global k_3     % Maximal transcription of Z2 mRNA 
+global B       % A binding constant for U mediated induction of Z1 mRNA transcription
+global K       % Dissociation constant for X Protein (this is a pretty random number)
+global K_X     % Dissociation constant for Z1 Protein (this is a pretty random number)
+global delta_m % Degradation/dilution rate of mRNA
+global delta_p % Degradation/dilution rate of protein
+global theta   % Annihiliation rate of Z1 and Z2 protein 
+global T_1     % Translation rate of Z1 
+global T_2     % Translation rate of Z2 
+global T_3     % Translation rate of X 
+global U       % Concentration of inducer 
+
+%% Parameter Values
+tau_1   = ;
+tau_2   = 0.18;
+tau_3   = 0.09;
+k_1     = ;
+k_2     = ;
+k_3     = 0.85;
+B       = ;
+K       = ;
+K_X     = ;
+delta_m = 0.0041;
+delta_p = 0.00039;
+theta   = 0.008333333333;
+T_1     = 0.0243;
+T_2     = 0.0243;
+T_3     = 0.0121;
+U       = ;
+
+%% State is [Z_1m Z_2m Z_1p Z_2p X_m X_p]
+s0       = [0 0 0 0 0 0]; % Initial values of the states in the ODE model 
+
+%% Generate the simulation 
+Tend     = 2500;        % End time value -- This is currently random 
+ODEFUN   = @antitheticproteinddt;
+[t, S] = ode45(ODEFUN, [0,Tend], s0);
+
+%% Generate Plot Figure
+figure(1);
+set(gca, 'fontsize', 14);
+plot(t, S(:,1), 'k', t, S(:,2), 'r', t, S(:,3), 'g', t, S(:,4), 'b', t, S(:,5), 'y', t, S(:,6), 'k--', 'LineWidth', 3);
+legend('Z1 mRNA', 'Z2 mRNA', 'Z1 protein', 'Z2 protein', 'X mRNA', 'X protein', 'Location', 'northwest');
+xlabel('Time (seconds)');
+
+end
+
+%% Dynamics 
+function dS = antitheticproteinddt(t, S);
+
+global tau_1   
+global tau_2   
+global tau_3   
+global k_1      
+global k_2     
+global k_3     
+global B       
+global K       
+global K_X     
+global delta_m 
+global delta_p 
+global theta   
+global T_1     
+global T_2     
+global T_3   
+global U
+
+Z_1m = S(1);
+Z_2m = S(2);
+Z_1p = S(3);
+Z_2p = S(4);
+X_m  = S(5);
+X_p  = S(6);
+
+dZ_1mdt = tau_1 + ((k_1 * U)/(B + U)) - (delta_m * Z_1m);
+dZ_2mdt = tau_2 + ((k_3 * K)/(K + X_p)) - (delta_m * Z_2m);
+dZ_1pdt = (T_1 * Z_1m) - (delta_p * Z_1p) - (theta * Z_1p * Z_2p);
+dZ_2pdt = (T_2 * Z_2m) - (delta_p * Z_2p) - (theta * Z_1p * Z_2p);
+dX_mdt  = tau_3 + ((k_2 * K_X)/(K_X + Z_1p)) - (delta_m * X_m);
+dX_pdt  = (T_3 * X_m) - (delta_p * X_p);
+
+dS = [dZ_1mdt; dZ_2mdt; dZ_1pdt; dZ_2pdt; dX_mdt; dX_pdt];
+
+end 

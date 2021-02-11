@@ -21,16 +21,16 @@ global T_1
 global T_0 
 
 %% Parameter Values
-tau_1    = 0.09;        % Leaky transcription rate of Z_1 
-k_1      = 0.85;        % Maximal transcription rate of Z_1
-theta    = 0.05;        % Annihilation rate of Z_1 and Z_2 
+tau_1    = 0;           % Leaky transcription rate of Z_1 
+k_1      = 1670;        % Maximal transcription rate of Z_1
+theta    = 0.000000224; % Annihilation rate of Z_1 and Z_2 
 delta_s  = 0.0008;      % sRNA degradation/dilution rate
 k_2      = 0.000000224; % Z_1 sRNA and X mRNA binding rate 
 B        = 2600;        % A binding rate for U mediated induction of Z_1 
-U        = 0.45;        % Concentration of the inducer for Z_1 transcription 
-tau_2    = 0.09;        % Leaky transcription of Z_2 
-k_3      = 0.85;        % Maximal transcription rate of Z_2
-K        = 600;         % Dissociation constant for X Protein (this is a pretty random number)
+U        = 1;           % Concentration of the inducer for Z_1 transcription 
+tau_2    = 0.0;         % Leaky transcription of Z_2 
+k_3      = 100;         % Maximal transcription rate of Z_2
+K        = 10;          % Dissociation constant for X Protein (this is a pretty random number)
 alpha    = 0.85;        % Transcription rate of X mRNA 
 delta_m  = 0.0041;      % degradation rate of X mRNA 
 delta_c  = 0.0041;      % degradation rate of sRNA-mRNA complex 
@@ -42,7 +42,7 @@ T_0      = 0;           % Leaky translation rate of X from the sRNA-mRNA complex
 s0       = [0 0 0 0 0]; % Initial values of the states in the ODE model 
 
 %% Generate the simulation 
-Tend     = 2500;        % End time value -- This is currently random 
+Tend     = 15000;        % End time value -- This is currently random 
 ODEFUN   = @antitheticsrnaddt;
 [t, S] = ode45(ODEFUN, [0,Tend], s0);
 
@@ -51,6 +51,11 @@ figure(1);
 set(gca, 'fontsize', 14);
 plot(t, S(:,4), 'k', t, S(:,1), 'r', t, S(:,2), 'g', t, S(:,3), 'b', t, S(:,5), 'y', 'LineWidth', 3);
 legend('X Protein', 'Z1', 'Z2', 'X mRNA', 'X-mRNA-Z1 Complex', 'Location', 'northwest');
+xlabel('Time (seconds)');
+figure(2);
+set(gca, 'fontsize', 14);
+plot(t, S(:,1), 'r', t, S(:,2), 'g', t, S(:,3), 'b', t, S(:,5), 'y', 'LineWidth', 3);
+legend('Z1', 'Z2', 'X mRNA', 'X-mRNA-Z1 Complex', 'Location', 'northwest');
 xlabel('Time (seconds)');
 
 end
