@@ -1,7 +1,7 @@
+function AntitheticsRNA
 clear; clc; clf;
 % This is a model of the antithetic controller under translational control
 % via sRNAs.
-function AntitheticsRNA
 %% Initialising Global Parameters 
 global tau_1
 global k_1
@@ -49,9 +49,9 @@ ODEFUN   = @antitheticsrnaddt;
 %% Generate Plot Figure
 figure(1);
 set(gca, 'fontsize', 14);
-plot(t, S(:,4), 'k', 'LineWidth', 3);
-legend('X Protein');
-xlabel('Time (minutes)');
+plot(t, S(:,4), 'k', t, S(:,1), 'r', t, S(:,2), 'g', t, S(:,3), 'b', t, S(:,5), 'y', 'LineWidth', 3);
+legend('X Protein', 'Z1', 'Z2', 'X mRNA', 'X-mRNA-Z1 Complex', 'Location', 'northwest');
+xlabel('Time (seconds)');
 
 end
 
@@ -84,8 +84,8 @@ C   = S(5);
 dZ_1dt = tau_1 + ((k_1 * U)/(B + U)) - (theta * Z_1 * Z_2) - (delta_s * Z_1) - (k_2 * Z_1 * X_m);
 dZ_2dt = tau_2 + ((k_3 * K) / (K + X_P)) - (delta_s * Z_2) - (theta * Z_1 * Z_2);
 dX_mdt = alpha - (delta_m * X_m) - (k_2 * Z_1 * X_m);
-dX_Pdt = (T_1 .* X_m) + (T_0 .* C) - (delta_p .* X_P);
-dCdt   = (k_2 .* Z_1 .* X_m) - (delta_c .* C);
+dX_Pdt = (T_1 * X_m) + (T_0 * C) - (delta_p * X_P);
+dCdt   = (k_2 * Z_1 * X_m) - (delta_c * C);
 
 dS = [dZ_1dt; dZ_2dt; dX_mdt; dX_Pdt; dCdt];
 
