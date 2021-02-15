@@ -18,40 +18,42 @@ global theta   % Annihiliation rate of Z1 and Z2 protein
 global T_1     % Translation rate of Z1 
 global T_2     % Translation rate of Z2 
 global T_3     % Translation rate of X 
-global U       % Concentration of inducer 
+%global U       % Concentration of inducer 
 
 %% Parameter Values
-tau_1   = 0.18;
-tau_2   = 0.18;
-tau_3   = 0.09;
-k_1     = 1.7;
-k_2     = 1.7;
-k_3     = 0.85;
-B       = 2600;
-K       = 600;
-K_X     = 600;
-delta_m = 0.0041;
-delta_p = 0.00039;
-theta   = 0.008333333333;
-T_1     = 0.0243;
-T_2     = 0.0243;
-T_3     = 0.0121;
-U       = 1;
+tau_1   = 0*60*60;
+tau_2   = 0*60*60;
+tau_3   = 0*60*60;
+k_1     = 80*60*60;
+k_2     = 0.85*60*60;
+k_3     = 100*60*60;
+B       = 125;
+K       = 100;
+K_X     = 10;
+delta_m = 0.0041*60*60;
+delta_p = 0.00039*60*60;
+theta   = 0.0008333333333*60*60;
+T_1     = 0.0486*60*60;
+T_2     = 0.0486*60*60;
+T_3     = 0.0243*60*60;
+%U       = 0.45;
 
-%% State is [Z_1m Z_2m Z_1p Z_2p X_m X_p]
-s0       = [0 0 0 0 0 0]; % Initial values of the states in the ODE model 
+%% State is [Z_1m Z_2m Z_1p Z_2p X_m X_p U]
+s0       = [0 0 0 0 0 0 0.45]; % Initial values of the states in the ODE model 
+s1       = [0 0 0 0 0 0 1];
 
 %% Generate the simulation 
-Tend     = 15000;        % End time value -- This is currently random 
+Tend     = 6;        % End time value -- This is currently random 
 ODEFUN   = @antitheticproteinddt;
 [t, S] = ode45(ODEFUN, [0,Tend], s0);
+[t1, S1] = ode45(ODEFUN, [0,Tend], s1);
 
 %% Generate Plot Figure
 figure(1);
 set(gca, 'fontsize', 14);
-plot(t, S(:,1), 'k', t, S(:,2), 'r', t, S(:,3), 'g', t, S(:,4), 'b', t, S(:,5), 'y', t, S(:,6), 'k--', 'LineWidth', 3);
-legend('Z1 mRNA', 'Z2 mRNA', 'Z1 protein', 'Z2 protein', 'X mRNA', 'X protein', 'Location', 'northwest');
-xlabel('Time (seconds)');
+plot(t, S(:,6), 'k', t1, S1(:,6), 'r', 'LineWidth', 3);
+legend('X protein U = 0.45', 'X Protein U = 1', 'Location', 'northwest');
+xlabel('Time (Hours)');
 
 end
 
@@ -73,7 +75,7 @@ global theta
 global T_1     
 global T_2     
 global T_3   
-global U
+%global U
 
 Z_1m = S(1);
 Z_2m = S(2);
@@ -81,6 +83,7 @@ Z_1p = S(3);
 Z_2p = S(4);
 X_m  = S(5);
 X_p  = S(6);
+U    = S(7);
 
 dZ_1mdt = tau_1 + ((k_1 * U)/(B + U)) - (delta_m * Z_1m);
 dZ_2mdt = tau_2 + ((k_3 * K)/(K + X_p)) - (delta_m * Z_2m);
@@ -88,7 +91,8 @@ dZ_1pdt = (T_1 * Z_1m) - (delta_p * Z_1p) - (theta * Z_1p * Z_2p);
 dZ_2pdt = (T_2 * Z_2m) - (delta_p * Z_2p) - (theta * Z_1p * Z_2p);
 dX_mdt  = tau_3 + ((k_2 * K_X)/(K_X + Z_1p)) - (delta_m * X_m);
 dX_pdt  = (T_3 * X_m) - (delta_p * X_p);
+dUdt    = 0;
 
-dS = [dZ_1mdt; dZ_2mdt; dZ_1pdt; dZ_2pdt; dX_mdt; dX_pdt];
+dS = [dZ_1mdt; dZ_2mdt; dZ_1pdt; dZ_2pdt; dX_mdt; dX_pdt; dUdt];
 
 end 

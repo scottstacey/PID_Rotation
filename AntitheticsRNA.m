@@ -9,7 +9,7 @@ global theta
 global delta_s
 global k_2
 global B
-global U 
+%global U 
 global tau_2 
 global k_3
 global K
@@ -23,11 +23,11 @@ global T_0
 %% Parameter Values
 tau_1    = 0;           % Leaky transcription rate of Z_1 
 k_1      = 1670;        % Maximal transcription rate of Z_1
-theta    = 0.000000224; % Annihilation rate of Z_1 and Z_2 
+theta    = 0.0000224; % Annihilation rate of Z_1 and Z_2 
 delta_s  = 0.0008;      % sRNA degradation/dilution rate
-k_2      = 0.000000224; % Z_1 sRNA and X mRNA binding rate 
+k_2      = 0.0000224; % Z_1 sRNA and X mRNA binding rate 
 B        = 2600;        % A binding rate for U mediated induction of Z_1 
-U        = 1;           % Concentration of the inducer for Z_1 transcription 
+%U        = 0.9;           % Concentration of the inducer for Z_1 transcription 
 tau_2    = 0.0;         % Leaky transcription of Z_2 
 k_3      = 100;         % Maximal transcription rate of Z_2
 K        = 10;          % Dissociation constant for X Protein (this is a pretty random number)
@@ -38,25 +38,28 @@ delta_p  = 0.00039;     % degradation rate of the X protein
 T_1      = 0.0243;      % Translation rate of X from X mRNA 
 T_0      = 0;           % Leaky translation rate of X from the sRNA-mRNA complex - currently assuming no leak
 
-%% State is [Z_1 Z_2 X_m X_P C]
-s0       = [0 0 0 0 0]; % Initial values of the states in the ODE model 
-
+%% State is [Z_1 Z_2 X_m X_P C U]
+s0       = [0 0 0 0 0 0.45]; % Initial values of the states in the ODE model 
+s1       = [0 0 0 0 0 1.5];
 %% Generate the simulation 
-Tend     = 15000;        % End time value -- This is currently random 
+Tend     = 14400;        % End time value -- This is currently random 
 ODEFUN   = @antitheticsrnaddt;
 [t, S] = ode45(ODEFUN, [0,Tend], s0);
+[t1, S1] = ode45(ODEFUN, [0,Tend], s1);
 
 %% Generate Plot Figure
 figure(1);
 set(gca, 'fontsize', 14);
-plot(t, S(:,4), 'k', t, S(:,1), 'r', t, S(:,2), 'g', t, S(:,3), 'b', t, S(:,5), 'y', 'LineWidth', 3);
-legend('X Protein', 'Z1', 'Z2', 'X mRNA', 'X-mRNA-Z1 Complex', 'Location', 'northwest');
-xlabel('Time (seconds)');
-figure(2);
-set(gca, 'fontsize', 14);
-plot(t, S(:,1), 'r', t, S(:,2), 'g', t, S(:,3), 'b', t, S(:,5), 'y', 'LineWidth', 3);
-legend('Z1', 'Z2', 'X mRNA', 'X-mRNA-Z1 Complex', 'Location', 'northwest');
-xlabel('Time (seconds)');
+plot(t, S(:,4), 'k', t1, S1(:,4), 'r', 'LineWidth', 3)
+legend('X Protein U=0.9', 'X Protein U=1.5')
+% plot(t, S(:,4), 'k', t, S(:,1), 'r', t, S(:,2), 'g', t, S(:,3), 'b', t, S(:,5), 'y', 'LineWidth', 3);
+% legend('X Protein', 'Z1', 'Z2', 'X mRNA', 'X-mRNA-Z1 Complex', 'Location', 'northwest');
+% xlabel('Time (seconds)');
+% figure(2);
+% set(gca, 'fontsize', 14);
+% plot(t, S(:,1), 'r', t, S(:,2), 'g', t, S(:,3), 'b', t, S(:,5), 'y', 'LineWidth', 3);
+% legend('Z1', 'Z2', 'X mRNA', 'X-mRNA-Z1 Complex', 'Location', 'northwest');
+% xlabel('Time (seconds)');
 
 end
 
@@ -69,7 +72,7 @@ global theta;
 global delta_s;
 global k_2;
 global B;
-global U; 
+%global U; 
 global tau_2; 
 global k_3;
 global K;
@@ -85,13 +88,15 @@ Z_2 = S(2);
 X_m = S(3);
 X_P = S(4);
 C   = S(5);
+U   = S(6);
 
 dZ_1dt = tau_1 + ((k_1 * U)/(B + U)) - (theta * Z_1 * Z_2) - (delta_s * Z_1) - (k_2 * Z_1 * X_m);
 dZ_2dt = tau_2 + ((k_3 * K) / (K + X_P)) - (delta_s * Z_2) - (theta * Z_1 * Z_2);
 dX_mdt = alpha - (delta_m * X_m) - (k_2 * Z_1 * X_m);
 dX_Pdt = (T_1 * X_m) + (T_0 * C) - (delta_p * X_P);
 dCdt   = (k_2 * Z_1 * X_m) - (delta_c * C);
+dUdt   = 0;
 
-dS = [dZ_1dt; dZ_2dt; dX_mdt; dX_Pdt; dCdt];
+dS = [dZ_1dt; dZ_2dt; dX_mdt; dX_Pdt; dCdt; dUdt];
 
 end 
