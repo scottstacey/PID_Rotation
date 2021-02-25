@@ -3,100 +3,90 @@ clear; clc; clf;
 % This is a model of the antithetic controller under translational control
 % via sRNAs.
 %% Initialising Global Parameters 
-global tau_1
-global k_1
-global theta
-global delta_s
-global k_2
-global B
-%global U 
-global tau_2 
-global k_3
-global K
-global alpha 
-global delta_m 
-global delta_c
-global delta_p 
-global T_1
-global T_0 
+global U;        % Inducer concentration in nM
+global k_1;      % Maximal rate of of Z1 (mRNA) transcription 
+global K_U;      % A binding constant for U mediated induction of Z1 (mRNA) transcription
+global gamma_m;  % Degradation rate of mRNA (Z1)
+global gamma_s   % Degradation rate of sRNA (Z2)
+global theta;    % Annihilation rate of Z1 (mRNA) and Z2 (sRNA)
+global k_3;      % Maximal rate of Z2 (sRNA) transcription
+global K_X;      % A binding constant for X mediatted induction of Z2 (sRNA) transcription
+global k_2;      % Translation rate of X protein
+global delta;    % Deradation/dilution rate of X (protein)
+global delta_c;  % Degradation rate of C (mRNA-sRNA complex)
+global tau_1;    % Basal transcription rate of Z1 (X mRNA)
+global tau_2;    % Basal transcription rate of Z2 (sRNA)
+global tau_3;    % Leaky transaltion rate from C (mRNA-sRNA complex)
+global setpoint; % Setpoint of steady state value of X
 
 %% Parameter Values
-tau_1    = 0;           % Leaky transcription rate of Z_1 
-k_1      = 1670;        % Maximal transcription rate of Z_1
-theta    = 0.0000224; % Annihilation rate of Z_1 and Z_2 
-delta_s  = 0.0008;      % sRNA degradation/dilution rate
-k_2      = 0.0000224; % Z_1 sRNA and X mRNA binding rate 
-B        = 2600;        % A binding rate for U mediated induction of Z_1 
-%U        = 0.9;           % Concentration of the inducer for Z_1 transcription 
-tau_2    = 0.0;         % Leaky transcription of Z_2 
-k_3      = 100;         % Maximal transcription rate of Z_2
-K        = 10;          % Dissociation constant for X Protein (this is a pretty random number)
-alpha    = 0.85;        % Transcription rate of X mRNA 
-delta_m  = 0.0041;      % degradation rate of X mRNA 
-delta_c  = 0.0041;      % degradation rate of sRNA-mRNA complex 
-delta_p  = 0.00039;     % degradation rate of the X protein
-T_1      = 0.0243;      % Translation rate of X from X mRNA 
-T_0      = 0;           % Leaky translation rate of X from the sRNA-mRNA complex - currently assuming no leak
+% Parameter values in NM, s^-1, or NMs^-1.Multiplied by 60^2 to put in
+% hours.
+U        = 250000; 
+k_1      = 0.1*60*60;
+k_2      = 0.06*60*60;
+k_3      = 1.5*60*60;
+theta    = 0.05 * 60;        % Same value as Khammash paper, not sure where to find mRNA sRNA binding rates
+gamma_m  = 0.0041*60*60*0;   % Set to zero to give integral control. Value taken from Kelly et al NAR
+gamma_s  = 0.0008*60*60*0;   % Set to zero to give integral control. Value taken from Kelly et al NAR
+K_U      = 178000;           %
+K_X      = 2600;             %
+delta    = 0.00039*60*60;    % Value taken from Kelly et al NAR
+delta_c  = 0.0041*60*60;     % Value taken from Kelly et al NAR
+tau_1    = 0*60*60;          % Set to 0 for simplicity 
+tau_2    = 0*60*60;          % Set to 0 for simplicity
+tau_3    = 0*60*60;          % Set to 0 for simplicity
+setpoint = (k_1 * K_X * U) / ((k_3 * K_U) + (k_3 * U) - (k_1 * U)); % Setpoint for when gammas are 0 as otherwise depends on Z1 and Z2 too
 
-%% State is [Z_1 Z_2 X_m X_P C U]
-s0       = [0 0 0 0 0 0.45]; % Initial values of the states in the ODE model 
-s1       = [0 0 0 0 0 1.5];
+%% State is [Z_1 Z_2 X C]
+s0       = [0 0 0 0]; % Initial values of the states in the ODE model 
 %% Generate the simulation 
-Tend     = 14400;        % End time value -- This is currently random 
+Tend     = 12;        % End time value -- This is currently random 
 ODEFUN   = @antitheticsrnaddt;
 [t, S] = ode45(ODEFUN, [0,Tend], s0);
-[t1, S1] = ode45(ODEFUN, [0,Tend], s1);
 
 %% Generate Plot Figure
 figure(1);
-set(gca, 'fontsize', 14);
-plot(t, S(:,4), 'k', t1, S1(:,4), 'r', 'LineWidth', 3)
-legend('X Protein U=0.9', 'X Protein U=1.5')
-% plot(t, S(:,4), 'k', t, S(:,1), 'r', t, S(:,2), 'g', t, S(:,3), 'b', t, S(:,5), 'y', 'LineWidth', 3);
-% legend('X Protein', 'Z1', 'Z2', 'X mRNA', 'X-mRNA-Z1 Complex', 'Location', 'northwest');
-% xlabel('Time (seconds)');
-% figure(2);
-% set(gca, 'fontsize', 14);
-% plot(t, S(:,1), 'r', t, S(:,2), 'g', t, S(:,3), 'b', t, S(:,5), 'y', 'LineWidth', 3);
-% legend('Z1', 'Z2', 'X mRNA', 'X-mRNA-Z1 Complex', 'Location', 'northwest');
-% xlabel('Time (seconds)');
+set(gca, 'fontsize', 12);
+plot(t, S(:,1), 'g', t, S(:,2), 'r', t, S(:,3), 'b', 'LineWidth', 3)
+yline(setpoint, 'k--', 'LineWidth', 3);
+legend('Z1 (x mRNA)','Z2 (sRNA)', 'X', 'setpoint', 'Location', 'northeast')
+xlabel('Time (Hours)');
+ylabel('Concentration (nM)');
+title('sRNA Implementation of Antithetic Integral Feedback Circuit');
+
 
 end
 
 %% Dynamics 
 function dS = antitheticsrnaddt(t, S);
 
-global tau_1;
-global k_1;
-global theta;
-global delta_s;
-global k_2;
-global B;
-%global U; 
-global tau_2; 
-global k_3;
-global K;
-global alpha; 
-global delta_m; 
-global delta_c;
-global delta_p;
-global T_1;
-global T_0;
+global U;        % Inducer concentration in nM
+global k_1;      % Maximal rate of of Z1 (mRNA) transcription 
+global K_U;      % A binding constant for U mediated induction of Z1 (mRNA) transcription
+global gamma_m;  % Degradation rate of mRNA (Z1)
+global gamma_s   % Degradation rate of sRNA (Z2)
+global theta;    % Annihilation rate of Z1 (mRNA) and Z2 (sRNA)
+global k_3;      % Maximal rate of Z2 (sRNA) transcription
+global K_X;      % A binding constant for X mediatted induction of Z2 (sRNA) transcription
+global k_2;      % Translation rate of X protein
+global delta;    % Deradation/dilution rate of X (protein)
+global delta_c;  % Degradation rate of C (mRNA-sRNA complex)
+global tau_1;    % Basal transcription rate of Z1 (X mRNA)
+global tau_2;    % Basal transcription rate of Z2 (sRNA)
+global tau_3;    % Leaky transaltion rate from C (mRNA-sRNA complex)
 
 Z_1 = S(1);
 Z_2 = S(2);
-X_m = S(3);
-X_P = S(4);
-C   = S(5);
-U   = S(6);
+X = S(3);
+C = S(4);
 
-dZ_1dt = tau_1 + ((k_1 * U)/(B + U)) - (theta * Z_1 * Z_2) - (delta_s * Z_1) - (k_2 * Z_1 * X_m);
-dZ_2dt = tau_2 + ((k_3 * K) / (K + X_P)) - (delta_s * Z_2) - (theta * Z_1 * Z_2);
-dX_mdt = alpha - (delta_m * X_m) - (k_2 * Z_1 * X_m);
-dX_Pdt = (T_1 * X_m) + (T_0 * C) - (delta_p * X_P);
-dCdt   = (k_2 * Z_1 * X_m) - (delta_c * C);
-dUdt   = 0;
 
-dS = [dZ_1dt; dZ_2dt; dX_mdt; dX_Pdt; dCdt; dUdt];
+dZ_1dt = tau_1 + ((k_1 * U)/(K_U + U)) - (gamma_m * Z_1) - (theta * Z_1 * Z_2);
+dZ_2dt = tau_2 + ((k_3 * X)/(K_X + X)) - (gamma_s * Z_2) - (theta * Z_1 * Z_2);
+dXdt   = (tau_3 * C) + (k_2 * Z_1) - (delta * X);
+dCdt   = (theta * Z_1 * Z_2) - (delta_c * C);
+
+dS = [dZ_1dt; dZ_2dt; dXdt; dCdt];
 
 end 
