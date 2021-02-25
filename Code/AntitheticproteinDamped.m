@@ -25,7 +25,7 @@ global alpha_2
 global delta_star
 
 %% Parameter Values
-U       = 250000;
+U       = 150000;
 k_1     = 0.2*60*60;         % Double k_2
 k_2     = 0.1*60*60;         % Same transcription rate as in antitheticsRNA.m
 k_3     = 0.2*60*60;         % Double k_2
@@ -40,11 +40,11 @@ gamma   = 0.028 * 60 *0;        % Set as dilution rate for E. coli. Set to zero 
 delta_p = (0.00039 * 60 * 60) + gamma; % Set as same rate in antitheticsRNA.m
 theta   = 0.05 * 60;         % Same rate as in Khammash Paper and antitheticsRNA.m
 K_XP    = 2000;              % Same as antitheticsRNA.m
-K_Z1P   = 700;              % Same as antitheticsRNA.m
+K_Z1P   = 2600;              % Same as antitheticsRNA.m
 K_U     = 178000;            % Same as antitheticsRNA.m
 alpha_1 = 0.01 * 60 * 60;
 alpha_2 = 0.2 * 60 * 60;
-delta_star = (0.00059 * 60 * 60) + gamma;
+delta_star = (0.0045 * 60 * 60) + gamma;
 
 %% State is [Z_1m Z_2m Z_1p Z_2p X_m X_p X_star]
 s0       = [0 0 0 0 0 0 0]; % Initial values of the states in the ODE model 
