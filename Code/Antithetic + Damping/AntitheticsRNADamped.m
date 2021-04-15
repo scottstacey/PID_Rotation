@@ -29,34 +29,42 @@ U        = 250000;
 k_1      = 0.1*60*60;
 k_2      = 0.06*60*60;
 k_3      = 1.5*60*60;
-theta    = 0.05 * 60;        % Same value as Khammash paper, not sure where to find mRNA sRNA binding rates
-gamma_m  = 0.0041*60*60*0;   % Set to zero to give integral control. Value taken from Kelly et al NAR
-gamma_s  = 0.0008*60*60*0;   % Set to zero to give integral control. Value taken from Kelly et al NAR
+theta    = 0.025*60*60;        % Same value as Khammash paper, not sure where to find mRNA sRNA binding rates
+gamma_m  = 0.0041*60*60;   % Set to zero to give integral control. Value taken from Kelly et al NAR
+gamma_s  = 0.0008*60*60;   % Set to zero to give integral control. Value taken from Kelly et al NAR
 K_U      = 178000;           %
 K_X      = 2600;             %
-delta    = 0.00039*60*60;    % Value taken from Kelly et al NAR
-delta_c  = 0.0041*60*60;     % Value taken from Kelly et al NAR
+delta    = 0.00039*60*60*0;    % Value taken from Kelly et al NAR
+delta_c  = 0.0041*60*60*0;     % Value taken from Kelly et al NAR
 tau_1    = 0*60*60;          % Set to 0 for simplicity 
 tau_2    = 0*60*60;          % Set to 0 for simplicity
 tau_3    = 0*60*60;          % Set to 0 for simplicity
 setpoint = (k_1 * K_X * U) / ((k_3 * K_U) + (k_3 * U) - (k_1 * U)); % Setpoint for when gammas are 0 
-alpha_1  = 0.1*60*60;
+alpha_1  = 1*60*60;
 alpha_2  = 0.1*60*60;
-delta_star = 0.039*60*60;
+delta_star = 0.00039*60*60*10;
 
-%% State is [Z_1 Z_2 X C X_star]
-s0       = [0 0 0 0 0]; % Initial values of the states in the ODE model 
+%% State is [Z_1 Z_2 X  X_star]
+s0       = [0 0 0 0]; % Initial values of the states in the ODE model 
 %% Generate the simulation 
-Tend     = 12;        % End time value -- This is currently random 
+Tend     = 20;        
 ODEFUN   = @antitheticsrnaddt;
 [t, S] = ode45(ODEFUN, [0,Tend], s0);
 
 %% Generate Plot Figure
 figure(1);
 set(gca, 'fontsize', 12);
-plot(t, S(:,1), 'g', t, S(:,2), 'r', t, S(:,3), 'b', t, S(:,5), 'y', 'LineWidth', 3)
+plot(t, S(:,1), 'g', t, S(:,2), 'r', t, S(:,3), 'b', 'LineWidth', 3)
 yline(setpoint, 'k--', 'LineWidth', 3);
-legend('Z1 (x mRNA)','Z2 (sRNA)', 'X', 'X*', 'setpoint', 'Location', 'northeast')
+legend('Z1 (x mRNA)','Z2 (sRNA)', 'X', 'setpoint', 'Location', 'northeast')
+xlabel('Time (Hours)');
+ylabel('Concentration (nM)');
+title('sRNA Implementation of Antithetic Integral Feedback Circuit with Damping');
+
+figure(2);
+set(gca, 'fontsize', 12);
+plot(t, S(:,4), 'k', 'LineWidth', 3)
+legend('X*', 'Location', 'northeast')
 xlabel('Time (Hours)');
 ylabel('Concentration (nM)');
 title('sRNA Implementation of Antithetic Integral Feedback Circuit with Damping');
@@ -88,16 +96,14 @@ global delta_star
 Z_1 = S(1);
 Z_2 = S(2);
 X = S(3);
-C = S(4);
-X_star = S(5);
+X_star = S(4);
 
 
 dZ_1dt = tau_1 + ((k_1 * U)/(K_U + U)) - (gamma_m * Z_1) - (theta * Z_1 * Z_2);
 dZ_2dt = tau_2 + ((k_3 * X)/(K_X + X)) - (gamma_s * Z_2) - (theta * Z_1 * Z_2);
-dXdt   = (tau_3 * C) + (k_2 * Z_1) - (delta * X) - (alpha_1 * X) + (alpha_2 * X_star);
-dCdt   = (theta * Z_1 * Z_2) - (delta_c * C);
+dXdt   = (k_2 * Z_1) - (delta * X) - (alpha_1 * X) + (alpha_2 * X_star);
 dX_stardt = (alpha_1 * X) - (alpha_2 * X_star) - (delta_star * X_star); 
 
-dS = [dZ_1dt; dZ_2dt; dXdt; dCdt; dX_stardt];
+dS = [dZ_1dt; dZ_2dt; dXdt; dX_stardt];
 
 end 

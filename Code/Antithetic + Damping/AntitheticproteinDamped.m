@@ -68,7 +68,7 @@ delta_star = (0.0045 * 60 * 60) + gamma;
 s0       = [0 0 0 0 0 0 0]; % Initial values of the states in the ODE model 
 
 %% Generate the simulation 
-Tend     = 20;        % End time value -- This is currently random 
+Tend     = 20;        
 ODEFUN   = @antitheticproteinddt;
 [t, S] = ode45(ODEFUN, [0,Tend], s0);
 

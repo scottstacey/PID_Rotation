@@ -23,10 +23,10 @@ global setpoint; % Setpoint of steady state value of X
 % Parameter values in NM, s^-1, or NMs^-1.Multiplied by 60^2 to put in
 % hours.
 U        = 250000; 
-k_1      = 0.1*60*60;
+k_1      = .1*60*60; 
 k_2      = 0.06*60*60;
 k_3      = 1.5*60*60;
-theta    = 0.05 * 60;        % Same value as Khammash paper, not sure where to find mRNA sRNA binding rates
+theta    = 0.025 * 60 * 60;        % Same value as Khammash paper
 gamma_m  = 0.0041*60*60*0;   % Set to zero to give integral control. Value taken from Kelly et al NAR
 gamma_s  = 0.0008*60*60*0;   % Set to zero to give integral control. Value taken from Kelly et al NAR
 K_U      = 178000;           %
@@ -41,7 +41,7 @@ setpoint = (k_1 * K_X * U) / ((k_3 * K_U) + (k_3 * U) - (k_1 * U)); % Setpoint f
 %% State is [Z_1 Z_2 X C]
 s0       = [0 0 0 0]; % Initial values of the states in the ODE model 
 %% Generate the simulation 
-Tend     = 12;        % End time value -- This is currently random 
+Tend     = 12;        
 ODEFUN   = @antitheticsrnaddt;
 [t, S] = ode45(ODEFUN, [0,Tend], s0);
 
@@ -50,10 +50,10 @@ figure(1);
 set(gca, 'fontsize', 12);
 plot(t, S(:,1), 'g', t, S(:,2), 'r', t, S(:,3), 'b', 'LineWidth', 3)
 yline(setpoint, 'k--', 'LineWidth', 3);
-legend('Z1 (x mRNA)','Z2 (sRNA)', 'X', 'setpoint', 'Location', 'northeast')
+legend('Z_1 (x mRNA)','Z_2 (sRNA)', 'X', 'setpoint', 'Location', 'northeast')
 xlabel('Time (Hours)');
 ylabel('Concentration (nM)');
-title('sRNA Implementation of Antithetic Integral Feedback Circuit');
+title(["Antithetic Integral Feedback Circuit", "(Without dilution/Degradation of Z_1 or Z_2)"]);
 
 
 end

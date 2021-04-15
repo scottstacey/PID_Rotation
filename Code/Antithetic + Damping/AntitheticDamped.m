@@ -24,14 +24,14 @@ setpoint   = mu / theta;       % Setpoint when delta = 0
 k          = 0.6*60;         % 0.028  min^-1 used as a reference for search space between 10^-2 and 10^2
 gamma      = 0.014*60;         % Native degradation of output set at 0.5 * delta
 delta      = 0.028*60*0;       % Set to zero for the case of the idealised Antithetic integral feedback circuit 
-gamma_star = 0.3*60;
+gamma_star = 0.014*60;
 alpha_1    = 0.4*60;
 alpha_2    = 0.3*60;
 
 %% State is [Z_1 Z_2 X X_star]
 s0       = [0 0 0 0];  % Initial values of the states in the ODE model 
 %% Generate the simulation 
-Tend     = 20;       % End time value -- This is currently random 
+Tend     = 20;       
 ODEFUN   = @antitheticddt;
 [t, S] = ode45(ODEFUN, [0,Tend], s0);
 
@@ -72,7 +72,7 @@ X_star = S(4);
 dZ1dt     = mu - (eta * Z1 * Z2) - (delta * Z1);
 dZ2dt     = (theta * X) - (eta * Z1 * Z2) - (delta * Z2);
 dXdt      = (k * Z1) - ((gamma + delta) * X) - (alpha_1 * X) + (alpha_2 * X_star);
-dX_stardt = (alpha_1 * X) - (alpha_2 * X_star) - (gamma_star * X_star);
+dX_stardt = (alpha_1 * X) - (alpha_2 * X_star) - ((gamma_star+delta) * X_star);
 
 
 dS = [dZ1dt; dZ2dt; dXdt; dX_stardt];

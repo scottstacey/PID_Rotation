@@ -15,18 +15,18 @@ global delta    % Dilution rate
 %% Parameter Values
 % Parameters taken from the Khammash paper in units of nM and min^-1,
 % multipled by 60 to give hr^-1. 
-mu       = 1.6*60;         % Search space between 10^0 and 10^4 nM min^-1
+mu       = 1.6*60;           % Search space between 10^0 and 10^4 nM min^-1
 eta      = 0.05*60;          % Conservative lower bound where higher eta values improve performance
 theta    = 0.016*60;         % 0.028  min^-1 used as a reference for search space between 10^-2 and 10^2
 setpoint = mu / theta;       % Setpoint when delta = 0
-k        = 0.6*60;         % 0.028  min^-1 used as a reference for search space between 10^-2 and 10^2
+k        = 0.6*60;           % 0.028  min^-1 used as a reference for search space between 10^-2 and 10^2
 gamma    = 0.014*60;         % Native degradation of output set at 0.5 * delta
 delta    = 0.028*60*0;       % Set to zero for the case of the idealised Antithetic integral feedback circuit 
 
 %% State is [Z_1 Z_2 X]
 s0       = [0 0 0];  % Initial values of the states in the ODE model 
 %% Generate the simulation 
-Tend     = 20;       % End time value -- This is currently random 
+Tend     = 20;       
 ODEFUN   = @antitheticddt;
 [t, S] = ode45(ODEFUN, [0,Tend], s0);
 

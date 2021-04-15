@@ -36,7 +36,7 @@ K_U     = 178000;            % Same as antitheticsRNA.m
 s0       = [0 0 0]; % Initial values of the states in the ODE model 
 
 %% Generate the simulation 
-Tend     = 30;        % End time value -- This is currently random 
+Tend     = 30;        
 ODEFUN   = @antitheticproteinddt;
 [t, S] = ode45(ODEFUN, [0,Tend], s0);
 
